@@ -6,6 +6,7 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 source "$SHELL_TEST_DIR/fixtures/sudo-boundary-test.sh"
 copy_boundary_file bin/omarchy-update
 copy_boundary_file bin/omarchy-refresh-pacman
+copy_boundary_file bin/omarchy-region
 copy_boundary_file bin/omarchy-apply-pacman
 # Replace the step symlink, preserving the real fixture dispatcher.
 rm "$SUDO_TEST_ROOT/bin/omarchy-update-aur-pkgs"
@@ -115,7 +116,7 @@ for args in '-v' '-n /usr/bin/true' '--user test -- /usr/bin/true' '-- /usr/bin/
   pass "sudo wrapper preserves $args"
 done
 
-for script in bin/omarchy-update bin/omarchy-refresh-pacman default/omarchy/sudo-no-update/sudo; do
+for script in bin/omarchy-update bin/omarchy-refresh-pacman bin/omarchy-region default/omarchy/sudo-no-update/sudo; do
   reset_boundary
   if /usr/bin/bash "$SUDO_TEST_ROOT/$script" -p >"$boundary_tmp/output" 2>&1; then fail "$script accepted an ordinary Bash launch"; fi
   [[ ! -s $SUDO_TEST_LOG ]] || fail "$script reached sudo through an invalid interpreter"

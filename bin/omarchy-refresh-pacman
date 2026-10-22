@@ -54,6 +54,14 @@ if [[ ! -f $templates/pacman-$channel.conf || ! -f $templates/mirrorlist-$channe
   exit 1
 fi
 
+# One writer of pacman's files at a time: a region switch backs them up to
+# the same .bak files and returns to them if it fails (omarchy-region).
+exec 9</etc/pacman.conf
+if ! flock -n 9; then
+  echo "A region switch is running. No repository configuration changed." >&2
+  exit 1
+fi
+
 # Render the channel templates plus this machine's regional additions as the
 # caller, so root only copies finished files. The scratch directory goes on
 # every exit, including a failed render, a refused sudo prompt, or a signal;

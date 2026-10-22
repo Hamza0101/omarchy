@@ -16,17 +16,68 @@ fi
 export OMARCHY_PATH
 
 # A regional install (/etc/omarchy/region, written by the installer) points
-# developer tools at that region's registries. Root skips it: on a dev link
-# OMARCHY_PATH is a user-writable checkout.
+# developer tools at that region's registries. Root skips all of it, taking
+# back included: on a dev link OMARCHY_PATH is a user-writable checkout.
 omarchy_region=
-# read fails on a marker without a final newline; startup shells may run set -e.
-if [ "$(id -u)" != 0 ] && [ -r "${OMARCHY_REGION_FILE:-/etc/omarchy/region}" ]; then
+if [ "$(id -u)" = 0 ]; then
+  omarchy_region=root
+elif [ -r "${OMARCHY_REGION_FILE:-/etc/omarchy/region}" ]; then
+  # read fails on a marker without a final newline; startup shells may run set -e.
   read -r omarchy_region <"${OMARCHY_REGION_FILE:-/etc/omarchy/region}" || :
 fi
 case "$omarchy_region" in
-  [a-z][a-z]) [ -r "$OMARCHY_PATH/default/regions/$omarchy_region/environment" ] && . "$OMARCHY_PATH/default/regions/$omarchy_region/environment" ;;
+  root) ;;
+  [a-z][a-z])
+    omarchy_region_file="$OMARCHY_PATH/default/regions/$omarchy_region/environment"
+    if [ -r "$omarchy_region_file" ]; then
+      # Note which registries this shell sets itself, so a shell started after
+      # a switch to World can take back exactly those. The profile keeps any
+      # non-empty value the user set first.
+      omarchy_region_names=
+      while IFS= read -r omarchy_region_line || [ -n "$omarchy_region_line" ]; do
+        case "$omarchy_region_line" in
+          "export "*=*)
+            omarchy_region_name=${omarchy_region_line#export }
+            omarchy_region_name=${omarchy_region_name%%=*}
+            case "$omarchy_region_name" in
+              "" | [0-9]* | *[!A-Z0-9_]*) ;;
+              *) eval "[ -n \"\${$omarchy_region_name:+set}\" ]" || omarchy_region_names="$omarchy_region_names $omarchy_region_name" ;;
+            esac
+            ;;
+        esac
+      done <"$omarchy_region_file"
+      . "$omarchy_region_file"
+      [ -z "$omarchy_region_names" ] || export OMARCHY_REGION_EXPORTED="${OMARCHY_REGION_EXPORTED:+$OMARCHY_REGION_EXPORTED }${omarchy_region_names# }"
+    fi
+    ;;
+  *)
+    # A desktop session started in a region passes its registries on until the
+    # next login. A shell started after a switch to World drops each one that
+    # still holds a region's value, and keeps any the user has set since.
+    if [ -n "${OMARCHY_REGION_EXPORTED:-}" ]; then
+      omarchy_region_values=$(env -i OMARCHY_PATH="$OMARCHY_PATH" sh -c 'for f in "$OMARCHY_PATH"/default/regions/*/environment; do (. "$f" && env); done' 2>/dev/null)
+      omarchy_region_names=$OMARCHY_REGION_EXPORTED
+      while [ -n "$omarchy_region_names" ]; do
+        omarchy_region_name=${omarchy_region_names%% *}
+        omarchy_region_names=${omarchy_region_names#"$omarchy_region_name"}
+        omarchy_region_names=${omarchy_region_names# }
+        case "$omarchy_region_name" in
+          "" | [0-9]* | *[!A-Z0-9_]*) continue ;;
+        esac
+        eval "omarchy_region_line=\${$omarchy_region_name-}"
+        case "
+$omarchy_region_values
+" in
+          *"
+$omarchy_region_name=$omarchy_region_line
+"*) unset "$omarchy_region_name" ;;
+        esac
+      done
+    fi
+    unset OMARCHY_REGION_EXPORTED
+    ;;
 esac
-unset omarchy_region
+unset omarchy_region omarchy_region_file omarchy_region_names omarchy_region_line omarchy_region_name omarchy_region_values
 
 # Only prepend in dev-link mode. On a production install, the binaries are
 # already on PATH as /usr/bin/omarchy-* via the omarchy package — prepending

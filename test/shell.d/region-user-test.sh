@@ -146,6 +146,42 @@ printf '../x\n' >"$scratch/region"
 ! shell_env | grep -q '^GOPROXY=' || fail "a malformed marker exports nothing"
 pass "shells export the region's registries only for China, and keep the user's own"
 
+# A session started in China passes its registries on to apps; a shell
+# started after a switch to World drops exactly the ones the region set.
+printf 'cn\n' >"$scratch/region"
+env_cn=$(shell_env NPM_CONFIG_REGISTRY=https://example.invalid/npm)
+exported=$(sed -n 's/^OMARCHY_REGION_EXPORTED=//p' <<<"$env_cn")
+[[ " $exported " == *" GOPROXY "* && " $exported " != *" NPM_CONFIG_REGISTRY "* ]] ||
+  fail "China records the registries it set, and not the user's" "$exported"
+rm -f "$scratch/region"
+env_world=$(env -i HOME="$HOME" PATH="$scratch/userbin:/usr/bin:/bin" OMARCHY_REGION_FILE="$scratch/region" \
+  GOPROXY=https://mirrors.aliyun.com/goproxy/,direct NPM_CONFIG_REGISTRY=https://example.invalid/npm \
+  OMARCHY_REGION_EXPORTED="$exported" sh -c '. "$0"; env' "$scratch/env-bootstrap")
+! grep -qE '^(GOPROXY|OMARCHY_REGION_EXPORTED)=' <<<"$env_world" || fail "World drops the registries China set" "$env_world"
+grep -qx 'NPM_CONFIG_REGISTRY=https://example.invalid/npm' <<<"$env_world" || fail "World keeps the user's own registry"
+grep -q '^PATH=.*/usr/bin' <<<"$env_world" || fail "World keeps PATH" "$(grep '^PATH=' <<<"$env_world")"
+pass "a shell started after a switch to World drops the registries China set, and keeps the user's"
+
+# An empty variable is the region's to fill and to take back; a value the user
+# set after the switch stays; a malformed list never stops a strict shell.
+printf 'cn\n' >"$scratch/region"
+env_cn=$(shell_env GOPROXY=)
+grep -qx 'GOPROXY=https://mirrors.aliyun.com/goproxy/,direct' <<<"$env_cn" || fail "China fills an empty registry" "$env_cn"
+[[ " $(sed -n 's/^OMARCHY_REGION_EXPORTED=//p' <<<"$env_cn") " == *" GOPROXY "* ]] || fail "China records a registry it filled in"
+rm -f "$scratch/region"
+env_world=$(env -i HOME="$HOME" PATH="$scratch/userbin:/usr/bin:/bin" OMARCHY_REGION_FILE="$scratch/region" \
+  GOPROXY=https://example.invalid/go GOSUMDB=sum.golang.google.cn OMARCHY_REGION_EXPORTED="GOPROXY GOSUMDB" \
+  sh -c '. "$0"; env' "$scratch/env-bootstrap")
+grep -qx 'GOPROXY=https://example.invalid/go' <<<"$env_world" || fail "World keeps a registry the user set after the switch" "$env_world"
+! grep -q '^GOSUMDB=' <<<"$env_world" || fail "World drops a registry still holding the region's value"
+for shell in sh dash; do
+  command -v "$shell" >/dev/null || continue
+  out=$(env -i HOME="$HOME" PATH="$scratch/userbin:/usr/bin:/bin" OMARCHY_REGION_FILE="$scratch/region" OMARCHY_REGION_EXPORTED='1BAD * $(x) GOSUMDB' \
+    "$shell" -euc '. "$0"; echo ok' "$scratch/env-bootstrap") || fail "$shell -eu survives a malformed registry list"
+  [[ $out == ok ]] || fail "$shell -eu finishes startup with a malformed registry list" "$out"
+done
+pass "an empty registry is the region's, a later user value stays, and a malformed list is harmless"
+
 # Root never sources a region's environment: on a dev link it lives in a
 # user-writable checkout.
 mkdir -p "$scratch/rootbin"
@@ -155,4 +191,17 @@ printf 'cn\n' >"$scratch/region"
 root_env=$(env -i HOME="$HOME" PATH="$scratch/rootbin:/usr/bin:/bin" OMARCHY_REGION_FILE="$scratch/region" sh -c '. "$0"; env' "$scratch/env-bootstrap") ||
   fail "env-bootstrap runs for root"
 ! grep -q '^GOPROXY=' <<<"$root_env" || fail "root's shells export no regional registries"
+# Nor when root inherits a session's list to take back: that would source
+# every region's file from the checkout.
+mkdir -p "$scratch/checkout/default/regions/xx"
+printf ': >"%s/sourced"\n' "$scratch" >"$scratch/checkout/default/regions/xx/environment"
+printf 'OMARCHY_PATH=%q\n' "$scratch/checkout" >"$scratch/checkout.conf"
+sed "s#/etc/omarchy.conf#$scratch/checkout.conf#g" "$ROOT/default/bash/env-bootstrap" >"$scratch/env-bootstrap-checkout"
+rm -f "$scratch/region" "$scratch/sourced"
+env -i HOME="$HOME" PATH="$scratch/rootbin:/usr/bin:/bin" OMARCHY_REGION_FILE="$scratch/region" OMARCHY_REGION_EXPORTED=GOPROXY \
+  sh -c '. "$0"' "$scratch/env-bootstrap-checkout" || fail "env-bootstrap runs for root with an inherited list"
+[[ ! -e $scratch/sourced ]] || fail "root sources no region file to take registries back"
+env -i HOME="$HOME" PATH="$scratch/userbin:/usr/bin:/bin" OMARCHY_REGION_FILE="$scratch/region" OMARCHY_REGION_EXPORTED=GOPROXY \
+  sh -c '. "$0"' "$scratch/env-bootstrap-checkout" || fail "env-bootstrap runs for a user with an inherited list"
+[[ -e $scratch/sourced ]] || fail "the test's region file is what a user's shell reads"
 pass "root's shells never source a region's environment"
