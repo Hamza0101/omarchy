@@ -18,22 +18,28 @@ stub curl 'printf "curl %s\n" "${@: -1}" >> "$TEST_LOG"; exit "${TEST_CURL_STATU
 stub omarchy-launch-webapp 'printf "webapp %s\n" "$*" >> "$TEST_LOG"'
 stub omarchy-notification-send 'printf "notify %s\n" "$*" >> "$TEST_LOG"'
 stub sleep ':'
-# Lists the portal window until a close is dispatched.
+# Lists the portal window from the TEST_WINDOW_AFTER-th look (the first by
+# default), as a window that maps late would, until a close is dispatched.
 stub hyprctl 'if [[ $1 == "clients" ]]; then
-  if [[ -e $TEST_CLOSED ]]; then echo "[]"; else echo "[{\"class\":\"chrome-ping.omacom.io__nm-check.txt-Default\"}]"; fi
+  looks=$(( $(cat "$TEST_LOOKS" 2>/dev/null || echo 0) + 1 )); echo "$looks" > "$TEST_LOOKS"
+  if [[ -e $TEST_CLOSED ]] || (( looks < ${TEST_WINDOW_AFTER:-1} )); then echo "[]"; else echo "[{\"class\":\"chrome-ping.omacom.io__nm-check.txt-Default\"}]"; fi
 else
   printf "hyprctl %s\n" "$*" >> "$TEST_LOG"
   touch "$TEST_CLOSED"
 fi'
 # Reports a portal for the first TEST_NMCLI_PORTAL_CHECKS checks (two by
-# default), then full connectivity.
-stub nmcli 'count=$(( $(cat "$TEST_NMCLI_COUNT" 2>/dev/null || echo 0) + 1 )); echo "$count" > "$TEST_NMCLI_COUNT"; if (( count > ${TEST_NMCLI_PORTAL_CHECKS:-2} )); then echo full; else echo portal; fi'
+# default), then full connectivity. Like the real nmcli it answers in the
+# session's language, so only the C locale reads "full".
+stub nmcli 'count=$(( $(cat "$TEST_NMCLI_COUNT" 2>/dev/null || echo 0) + 1 )); echo "$count" > "$TEST_NMCLI_COUNT"
+if [[ ${LC_ALL:-} != "C" ]]; then echo vollständig; elif (( count > ${TEST_NMCLI_PORTAL_CHECKS:-2} )); then echo full; else echo portal; fi'
 
+# Runs in a session locale other than C, where the nmcli stub answers in
+# translation, so every run below only finishes if the command reads C.
 run_portal() {
-  rm -f "$stage/log" "$stage/count" "$stage/closed"
-  TEST_LOG="$stage/log" TEST_NMCLI_COUNT="$stage/count" TEST_CLOSED="$stage/closed" XDG_RUNTIME_DIR="$stage" \
-    TEST_TAILSCALE_STATUS="$1" TEST_CURL_STATUS="${2:-0}" \
-    OMARCHY_PATH="$ROOT" PATH="$stage/bin:$ROOT/bin:$PATH" "$ROOT/bin/omarchy-network-captive-portal" "http://ping.omacom.io/nm-check.txt"
+  rm -f "$stage/log" "$stage/count" "$stage/closed" "$stage/looks"
+  TEST_LOG="$stage/log" TEST_NMCLI_COUNT="$stage/count" TEST_CLOSED="$stage/closed" TEST_LOOKS="$stage/looks" XDG_RUNTIME_DIR="$stage" \
+    TEST_TAILSCALE_STATUS="$1" TEST_CURL_STATUS="${2:-0}" LC_ALL=C.UTF-8 \
+    OMARCHY_PATH="$ROOT" PATH="$stage/bin:$ROOT/bin:$PATH" timeout 20 "$ROOT/bin/omarchy-network-captive-portal" "http://ping.omacom.io/nm-check.txt"
 }
 
 toggle="http://local-tailscaled.sock/localapi/v0/set-use-exit-node-enabled"
@@ -76,3 +82,10 @@ run_portal '{"ExitNodeStatus":{"ID":"node","Online":true}}'
 exec 8>&-
 [[ $(<"$stage/log") == "$webapp" ]] || fail "a second click only reopens the portal" "$(<"$stage/log")"
 pass "a second click only reopens the portal"
+
+
+# Online before the browser maps its window: the window still closes.
+TEST_WINDOW_AFTER=4 TEST_NMCLI_PORTAL_CHECKS=0 run_portal '{"ExitNodeStatus":null}'
+[[ $(<"$stage/log") == "$webapp
+$close" ]] || fail "closes a portal window that maps after the sign-in completed" "$(<"$stage/log")"
+pass "closes a portal window that maps after the sign-in completed"

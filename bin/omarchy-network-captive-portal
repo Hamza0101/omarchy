@@ -46,12 +46,17 @@ close_portal_window() {
   host=${host%%/*}
   # [.] rather than \. so the pattern survives both jq and the Lua string.
   local class="^chrome-${host//./[.]}__.*$"
+  local seen=0
 
-  for (( i = 0; i < 5; i++ )); do
-    if ! hyprctl clients -j | jq -e --arg class "$class" 'any(.[]; .class | test($class))' >/dev/null; then
+  # The browser handoff can return before the window maps, so an online
+  # check that wins the race still waits a moment for it to appear.
+  for (( i = 0; i < 20; i++ )); do
+    if hyprctl clients -j | jq -e --arg class "$class" 'any(.[]; .class | test($class))' >/dev/null; then
+      seen=1
+      hyprctl dispatch "hl.dsp.window.close({ window = \"class:$class\" })" >/dev/null
+    elif (( seen )); then
       break
     fi
-    hyprctl dispatch "hl.dsp.window.close({ window = \"class:$class\" })" >/dev/null
     sleep 0.3
   done
 }
@@ -63,7 +68,8 @@ close_portal_window() {
 wait_until_online() {
   local fast_until=$(( SECONDS + 300 ))
 
-  until [[ $(timeout 5 nmcli networking connectivity check 2>/dev/null) == "full" ]]; do
+  # nmcli translates its answer, so read it in the C locale.
+  until [[ $(LC_ALL=C timeout 5 nmcli networking connectivity check 2>/dev/null) == "full" ]]; do
     if (( SECONDS < fast_until )); then
       sleep 2
     else
