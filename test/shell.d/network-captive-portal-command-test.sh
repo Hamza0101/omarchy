@@ -32,10 +32,10 @@ toggle="http://local-tailscaled.sock/localapi/v0/set-use-exit-node-enabled"
 
 run_portal '{"ExitNodeStatus":{"ID":"node","Online":true}}'
 expected="curl $toggle?enabled=false
-notify -g 󰒊 Tailscale exit node paused It comes back once you're signed in
+notify -g  Tailscale exit node paused It comes back once you're signed in
 browser http://ping.omacom.io/nm-check.txt
 curl $toggle?enabled=true
-notify -g 󰒊 Tailscale exit node restored"
+notify -g  Tailscale exit node restored"
 [[ $(<"$stage/log") == "$expected" ]] || fail "pauses the exit node, opens the portal, and restores it once online" "$(<"$stage/log")"
 pass "pauses the exit node, opens the portal, and restores it once online"
 [[ $(<"$stage/count") == 3 ]] || fail "re-checks until connectivity is full, then stops" "$(<"$stage/count")"
@@ -53,7 +53,7 @@ pass "does not restore an exit node it failed to pause"
 # Well past the old ten-minute cap: the exit node stays paused until online.
 TEST_NMCLI_PORTAL_CHECKS=400 run_portal '{"ExitNodeStatus":{"ID":"node","Online":true}}'
 [[ $(<"$stage/count") == 401 ]] || fail "keeps checking through a slow sign-in" "$(<"$stage/count")"
-[[ $(tail -1 "$stage/log") == "notify -g 󰒊 Tailscale exit node restored" ]] || fail "restores the exit node only once a slow sign-in completes" "$(<"$stage/log")"
+[[ $(tail -1 "$stage/log") == "notify -g  Tailscale exit node restored" ]] || fail "restores the exit node only once a slow sign-in completes" "$(<"$stage/log")"
 pass "keeps the exit node paused until a slow sign-in completes"
 
 # A second click while the first is still watching only reopens the portal.

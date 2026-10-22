@@ -27,9 +27,9 @@ restore_exit_node() {
   if (( paused_exit_node )); then
     paused_exit_node=0
     if set_exit_node_enabled true; then
-      omarchy-notification-send -g "󰒊" "Tailscale exit node restored" 9>&-
+      omarchy-notification-send -g "" "Tailscale exit node restored" 9>&-
     else
-      omarchy-notification-send -g "󰒊" -u critical "Couldn't restore the Tailscale exit node" "Turn it back on with Tailscale" 9>&-
+      omarchy-notification-send -g "" -u critical "Couldn't restore the Tailscale exit node" "Turn it back on with Tailscale" 9>&-
     fi
   fi
 }
@@ -56,7 +56,7 @@ if flock -n 9; then
 
   if exit_node_active && set_exit_node_enabled false; then
     paused_exit_node=1
-    omarchy-notification-send -g "󰒊" "Tailscale exit node paused" "It comes back once you're signed in" 9>&-
+    omarchy-notification-send -g "" "Tailscale exit node paused" "It comes back once you're signed in" 9>&-
   fi
 
   omarchy-launch-browser "$url" 9>&-
