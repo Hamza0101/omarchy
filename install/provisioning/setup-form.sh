@@ -141,7 +141,8 @@ omarchy_prompt_username() {
     username=$(gum input --placeholder "Alphanumeric without spaces (like dhh)" --prompt.foreground="#845DF9" --prompt "Username> ") && status=0 || status=$?
     ((status == 0)) || return $status
 
-    if [[ "$username" =~ $OMARCHY_USERNAME_PATTERN ]]; then
+    # A bracket range follows the locale's collation, not ASCII; compare in C.
+    if (LC_ALL=C; [[ "$username" =~ $OMARCHY_USERNAME_PATTERN ]]); then
       if [[ "$username" =~ $OMARCHY_RESERVED_USERNAMES ]]; then
         notice "Username is reserved for system" 1
       elif omarchy_username_taken "$username"; then
