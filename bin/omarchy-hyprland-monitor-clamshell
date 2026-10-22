@@ -14,9 +14,7 @@ INTERNAL=$(omarchy-hyprland-monitor-laptop)
 # INTERNAL is written into generated Lua and hyprctl eval/dispatch below, so a
 # name that is not a plain connector string could execute on the next reload.
 # Names come from hyprctl; a user-created headless output can carry anything.
-# A bracket range follows the locale's collation, not ASCII: `[a-z]` takes in
-# `é` under en_US.UTF-8 and misses `i` and `I` under tr_TR.UTF-8. Pin
-# the comparison so the set written here is the one accepted everywhere.
+# A bracket range follows the locale's collation, not ASCII; compare in C.
 if [[ -n $INTERNAL ]] && ! (LC_ALL=C; [[ $INTERNAL =~ ^[A-Za-z0-9._-]+$ ]]); then
   echo "Refusing unsafe internal monitor name" >&2
   exit 1

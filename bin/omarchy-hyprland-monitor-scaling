@@ -83,9 +83,7 @@ set_scale() {
 
   # active_monitor is written into the Lua string eval'd below, so only a plain
   # connector name may pass; a hostile output name could execute otherwise.
-  # A bracket range follows the locale's collation, not ASCII: `[a-z]` takes in
-  # `é` under en_US.UTF-8 and misses `i` and `I` under tr_TR.UTF-8. Pin
-  # the comparison so the set written here is the one accepted everywhere.
+  # A bracket range follows the locale's collation, not ASCII; compare in C.
   if ! (LC_ALL=C; [[ $active_monitor =~ ^[A-Za-z0-9._-]+$ ]]); then
     echo "Refusing unsafe monitor name" >&2
     exit 1

@@ -25,9 +25,7 @@ if (( EUID != 0 )); then
 fi
 
 code=${1:-}
-# A bracket range follows the locale's collation, not ASCII: `[a-z]` takes in
-# `é` under en_US.UTF-8 and misses `i` and `I` under tr_TR.UTF-8. Pin
-# the comparison so the set written here is the one accepted everywhere.
+# A bracket range follows the locale's collation, not ASCII; compare in C.
 if (( $# != 1 )) || ! (LC_ALL=C; [[ $code =~ ^[a-z]{2,3}(-[A-Za-z]{2})?$ ]]); then
   echo "Usage: omarchy-locale-generate <code>" >&2
   exit 1
