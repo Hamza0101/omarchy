@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# omarchy:summary=Open a captive portal's sign-in page, pausing any Tailscale exit node until online
+# omarchy:summary=Open a captive portal's sign-in window, pausing any Tailscale exit node until online
 # omarchy:group=network
 # omarchy:args=<url>
 
@@ -34,6 +34,28 @@ restore_exit_node() {
   fi
 }
 
+# The portal signs in inside a floating web app window (see
+# default/hypr/apps/captive-portal.lua), named by Chromium after the URL's
+# host, which closes once the internet is reachable.
+open_portal_window() {
+  omarchy-launch-webapp "$url" 9>&-
+}
+
+close_portal_window() {
+  local host=${url#*://}
+  host=${host%%/*}
+  # [.] rather than \. so the pattern survives both jq and the Lua string.
+  local class="^chrome-${host//./[.]}__.*$"
+
+  for (( i = 0; i < 5; i++ )); do
+    if ! hyprctl clients -j | jq -e --arg class "$class" 'any(.[]; .class | test($class))' >/dev/null; then
+      break
+    fi
+    hyprctl dispatch "hl.dsp.window.close({ window = \"class:$class\" })" >/dev/null
+    sleep 0.3
+  done
+}
+
 # Nothing on the machine changes when the sign-in completes, so ask
 # NetworkManager to re-check: often while a sign-in is likely, then gently
 # until it is done. Its connectivity state updates as it does, which is what
@@ -59,10 +81,11 @@ if flock -n 9; then
     omarchy-notification-send -g "" "Tailscale exit node paused" "It comes back once you're signed in" 9>&-
   fi
 
-  omarchy-launch-browser "$url" 9>&-
+  open_portal_window
   wait_until_online
+  close_portal_window
 else
   # An earlier click is already holding the pause and watching for the
   # sign-in, so this one only brings the portal back up.
-  omarchy-launch-browser "$url" 9>&-
+  open_portal_window
 fi
