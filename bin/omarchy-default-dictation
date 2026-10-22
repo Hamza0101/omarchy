@@ -20,7 +20,10 @@ else
   backend=$1
 fi
 
-if [[ ! $backend =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+# A bracket range follows the locale's collation, not ASCII: `[a-z]` takes in
+# `é` under en_US.UTF-8 and misses `i` and `I` under tr_TR.UTF-8. Pin
+# the comparison so the set written here is the one accepted everywhere.
+if ! (LC_ALL=C; [[ $backend =~ ^[a-z0-9][a-z0-9-]*$ ]]); then
   echo "Invalid dictation backend: $backend" >&2
   exit 1
 fi

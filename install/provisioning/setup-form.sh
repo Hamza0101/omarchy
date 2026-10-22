@@ -192,7 +192,8 @@ omarchy_prompt_hostname() {
     if [[ -z $hostname ]]; then
       hostname="$OMARCHY_HOSTNAME_DEFAULT"
       return 0
-    elif [[ "$hostname" =~ $OMARCHY_HOSTNAME_PATTERN ]]; then
+    # A bracket range follows the locale's collation, not ASCII; compare in C.
+    elif (LC_ALL=C; [[ "$hostname" =~ $OMARCHY_HOSTNAME_PATTERN ]]); then
       return 0
     else
       notice "Hostname must be 1-63 letters, digits, or dashes, and cannot start or end with a dash" 1

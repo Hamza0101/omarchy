@@ -63,7 +63,10 @@ curl -fsSL --retry 3 "$feed_url" -o "$work/feed.yml"
 version=$(sed -n 's/^version: *//p' "$work/feed.yml")
 file=$(sed -n 's/^path: *//p' "$work/feed.yml")
 sha512=$(sed -n 's/^sha512: *//p' "$work/feed.yml")
-if [[ -z $version || -z $sha512 || ! $file =~ ^T3-Code-[A-Za-z0-9._-]+\.AppImage$ ]]; then
+# A bracket range follows the locale's collation, not ASCII: `[a-z]` takes in
+# `é` under en_US.UTF-8 and misses `i` and `I` under tr_TR.UTF-8. Pin
+# the comparison so the set written here is the one accepted everywhere.
+if [[ -z $version || -z $sha512 ]] || ! (LC_ALL=C; [[ $file =~ ^T3-Code-[A-Za-z0-9._-]+\.AppImage$ ]]); then
   echo "T3 Code's release feed at $feed_url is not in the expected format." >&2
   exit 1
 fi

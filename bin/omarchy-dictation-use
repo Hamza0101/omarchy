@@ -6,7 +6,10 @@
 
 set -e
 
-if (($# != 1)) || [[ ! $1 =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+# A bracket range follows the locale's collation, not ASCII: `[a-z]` takes in
+# `é` under en_US.UTF-8 and misses `i` and `I` under tr_TR.UTF-8. Pin
+# the comparison so the set written here is the one accepted everywhere.
+if (($# != 1)) || ! (LC_ALL=C; [[ $1 =~ ^[a-z0-9][a-z0-9-]*$ ]]); then
   echo "Usage: omarchy-dictation-use <backend>" >&2
   exit 1
 fi

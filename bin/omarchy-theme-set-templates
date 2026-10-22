@@ -262,7 +262,8 @@ apply_shell_section_override() {
   section=$(basename "$override")
   section="${section#shell.}"
   section="${section%.toml}"
-  [[ $section =~ ^[A-Za-z0-9_-]+$ ]] || return
+  # A bracket range follows the locale's collation, not ASCII; compare in C.
+  (LC_ALL=C; [[ $section =~ ^[A-Za-z0-9_-]+$ ]]) || return
 
   tmp=$(mktemp)
   body=$(mktemp)
