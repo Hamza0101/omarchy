@@ -61,6 +61,11 @@ cat >"$stub_bin/omarchy-hw-clamshell" <<'SH'
 [[ ${OMARCHY_TEST_CLAMSHELL:-false} == "true" ]]
 SH
 
+cat >"$stub_bin/omarchy-hw-external-monitors" <<'SH'
+#!/bin/bash
+[[ ${OMARCHY_TEST_EXTERNAL_CONNECTED:-false} == "true" ]]
+SH
+
 chmod +x "$stub_bin"/*
 
 write_auto_monitor_config() {
@@ -222,6 +227,7 @@ run_clamshell() {
     OMARCHY_TEST_INTERNAL_DISABLED="${OMARCHY_TEST_INTERNAL_DISABLED:-false}" \
     OMARCHY_TEST_EXTERNAL_ACTIVE="${OMARCHY_TEST_EXTERNAL_ACTIVE:-false}" \
     OMARCHY_TEST_CLAMSHELL="${OMARCHY_TEST_CLAMSHELL:-false}" \
+    OMARCHY_TEST_EXTERNAL_CONNECTED="${OMARCHY_TEST_EXTERNAL_CONNECTED:-false}" \
     "$ROOT/bin/omarchy-hyprland-monitor-clamshell"
 }
 
@@ -411,3 +417,22 @@ for config in nested_table semicolon block_comment; do
   grep -F 'scale = 1.25' "$eval_log" >/dev/null || fail "clamshell recovery reads the scale out of a ${config//_/ } rule"
   pass "clamshell recovery reads a ${config//_/ } rule"
 done
+
+# A panel turned off from the Display panel is a runtime disabled = true with
+# no flag. Once the external display is unplugged, the recovery's rule update
+# has to say disabled = false, or the panel stays off behind Hyprland's
+# FALLBACK (#16307). While an external display is still connected, the choice
+# to run on it alone stands, since the docked poll reaches this every two
+# seconds.
+write_internal_monitor_config
+: >"$eval_log"
+OMARCHY_TEST_INTERNAL_DISABLED=true run_clamshell
+grep -Fx 'hl.monitor({ output = "eDP-1", disabled = false, mode = "preferred", position = "0x0", scale = 1.25 })' "$eval_log" >/dev/null ||
+  fail "clamshell recovery turns a panel-disabled display back on once nothing external is connected" "$(cat "$eval_log")"
+pass "clamshell recovery turns a panel-disabled display back on once nothing external is connected"
+
+: >"$eval_log"
+OMARCHY_TEST_INTERNAL_DISABLED=true OMARCHY_TEST_EXTERNAL_CONNECTED=true OMARCHY_TEST_EXTERNAL_ACTIVE=true run_clamshell
+! grep -F 'disabled = false' "$eval_log" >/dev/null ||
+  fail "clamshell recovery leaves a panel-disabled display off while an external display is connected" "$(cat "$eval_log")"
+pass "clamshell recovery leaves a panel-disabled display off while an external display is connected"
