@@ -33,7 +33,7 @@ run_portal() {
   rm -f "$stage/log" "$stage/count" "$stage/closed"
   TEST_LOG="$stage/log" TEST_NMCLI_COUNT="$stage/count" TEST_CLOSED="$stage/closed" XDG_RUNTIME_DIR="$stage" \
     TEST_TAILSCALE_STATUS="$1" TEST_CURL_STATUS="${2:-0}" \
-    PATH="$stage/bin:$ROOT/bin:$PATH" "$ROOT/bin/omarchy-network-captive-portal" "http://ping.omacom.io/nm-check.txt"
+    OMARCHY_PATH="$ROOT" PATH="$stage/bin:$ROOT/bin:$PATH" "$ROOT/bin/omarchy-network-captive-portal" "http://ping.omacom.io/nm-check.txt"
 }
 
 toggle="http://local-tailscaled.sock/localapi/v0/set-use-exit-node-enabled"
