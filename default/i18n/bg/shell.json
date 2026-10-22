@@ -381,7 +381,6 @@
   "network.setDnsTo": "Задай DNS на %1",
   "network.showQrCode": "Покажи QR код",
   "network.signInRequired": "Изисква се вход",
-  "network.signInRequiredHeader": "ИЗИСКВА СЕ ВХОД",
   "network.signInToNetwork": "Влез в тази мрежа",
   "network.stayOnBand": "Остани на %1",
   "network.timedOutConnecting": "Изтекло време при свързване",

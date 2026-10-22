@@ -393,7 +393,6 @@
   "network.setDnsTo": "Nastaviť DNS na %1",
   "network.showQrCode": "Zobraziť QR kód",
   "network.signInRequired": "Vyžaduje sa prihlásenie",
-  "network.signInRequiredHeader": "VYŽADUJE SA PRIHLÁSENIE",
   "network.signInToNetwork": "Prihlásiť sa do tejto siete",
   "network.stayOnBand": "Zostať na %1",
   "network.timedOutConnecting": "Pripájanie vypršalo",

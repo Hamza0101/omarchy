@@ -381,7 +381,6 @@
   "network.setDnsTo": "DNS beállítása: %1",
   "network.showQrCode": "QR-kód mutatása",
   "network.signInRequired": "Bejelentkezés szükséges",
-  "network.signInRequiredHeader": "BEJELENTKEZÉS SZÜKSÉGES",
   "network.signInToNetwork": "Bejelentkezés a hálózatba",
   "network.stayOnBand": "Maradás: %1",
   "network.timedOutConnecting": "Időtúllépés csatlakozáskor",

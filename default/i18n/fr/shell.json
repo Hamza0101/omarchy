@@ -393,7 +393,6 @@
   "network.setDnsTo": "Définir le DNS sur %1",
   "network.showQrCode": "Afficher le code QR",
   "network.signInRequired": "Connexion requise",
-  "network.signInRequiredHeader": "CONNEXION REQUISE",
   "network.signInToNetwork": "Se connecter à ce réseau",
   "network.stayOnBand": "Rester sur %1",
   "network.timedOutConnecting": "Délai de connexion dépassé",

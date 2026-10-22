@@ -381,7 +381,6 @@
   "network.setDnsTo": "Indstil DNS til %1",
   "network.showQrCode": "Vis QR-kode",
   "network.signInRequired": "Login påkrævet",
-  "network.signInRequiredHeader": "LOGIN PÅKRÆVET",
   "network.signInToNetwork": "Log ind på dette netværk",
   "network.stayOnBand": "Bliv på %1",
   "network.timedOutConnecting": "Timeout under tilslutning",

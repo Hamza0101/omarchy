@@ -381,7 +381,6 @@
   "network.setDnsTo": "DNS %1-এ সেট করুন",
   "network.showQrCode": "QR কোড দেখান",
   "network.signInRequired": "সাইন-ইন প্রয়োজন",
-  "network.signInRequiredHeader": "সাইন-ইন প্রয়োজন",
   "network.signInToNetwork": "এই নেটওয়ার্কে সাইন-ইন করুন",
   "network.stayOnBand": "%1-এ থাকুন",
   "network.timedOutConnecting": "সংযোগ করতে সময় শেষ",

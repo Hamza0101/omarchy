@@ -381,7 +381,6 @@
   "network.setDnsTo": "Itakda ang DNS sa %1",
   "network.showQrCode": "Ipakita ang QR code",
   "network.signInRequired": "Kailangan mag-sign in",
-  "network.signInRequiredHeader": "KAILANGAN MAG-SIGN IN",
   "network.signInToNetwork": "Mag-sign in sa network na ito",
   "network.stayOnBand": "Manatili sa %1",
   "network.timedOutConnecting": "Nag-time out sa pagkonekta",

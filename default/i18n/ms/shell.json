@@ -369,7 +369,6 @@
   "network.setDnsTo": "Tetapkan DNS kepada %1",
   "network.showQrCode": "Tunjuk kod QR",
   "network.signInRequired": "Log masuk diperlukan",
-  "network.signInRequiredHeader": "LOG MASUK DIPERLUKAN",
   "network.signInToNetwork": "Log masuk ke rangkaian ini",
   "network.stayOnBand": "Kekal pada %1",
   "network.timedOutConnecting": "Tamat masa menyambung",

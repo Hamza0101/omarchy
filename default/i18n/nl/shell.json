@@ -381,7 +381,6 @@
   "network.setDnsTo": "DNS instellen op %1",
   "network.showQrCode": "QR-code tonen",
   "network.signInRequired": "Aanmelden vereist",
-  "network.signInRequiredHeader": "AANMELDEN VEREIST",
   "network.signInToNetwork": "Aanmelden bij dit netwerk",
   "network.stayOnBand": "Op %1 blijven",
   "network.timedOutConnecting": "Time-out bij verbinden",

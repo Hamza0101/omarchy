@@ -393,7 +393,6 @@
   "network.setDnsTo": "Postavi DNS na %1",
   "network.showQrCode": "Prikaži QR kod",
   "network.signInRequired": "Potrebna prijava",
-  "network.signInRequiredHeader": "POTREBNA PRIJAVA",
   "network.signInToNetwork": "Prijavi se u ovu mrežu",
   "network.stayOnBand": "Ostani na %1",
   "network.timedOutConnecting": "Isteklo vrijeme povezivanja",

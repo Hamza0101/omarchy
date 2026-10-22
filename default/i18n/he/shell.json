@@ -393,7 +393,6 @@
   "network.setDnsTo": "הגדרת DNS ל-%1",
   "network.showQrCode": "הצגת קוד QR",
   "network.signInRequired": "נדרשת התחברות",
-  "network.signInRequiredHeader": "נדרשת התחברות",
   "network.signInToNetwork": "התחברות לרשת זו",
   "network.stayOnBand": "הישאר ב-%1",
   "network.timedOutConnecting": "פג זמן ההתחברות",

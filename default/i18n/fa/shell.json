@@ -381,7 +381,6 @@
   "network.setDnsTo": "تنظیم DNS روی %1",
   "network.showQrCode": "نمایش کد QR",
   "network.signInRequired": "ورود لازم است",
-  "network.signInRequiredHeader": "ورود لازم است",
   "network.signInToNetwork": "ورود به این شبکه",
   "network.stayOnBand": "ماندن روی %1",
   "network.timedOutConnecting": "مهلت اتصال تمام شد",

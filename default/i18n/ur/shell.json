@@ -381,7 +381,6 @@
   "network.setDnsTo": "DNS کو %1 پر مقرر کریں",
   "network.showQrCode": "QR کوڈ دکھائیں",
   "network.signInRequired": "سائن ان درکار ہے",
-  "network.signInRequiredHeader": "سائن ان درکار ہے",
   "network.signInToNetwork": "اس نیٹ ورک میں سائن ان کریں",
   "network.stayOnBand": "%1 پر ہی رہیں",
   "network.timedOutConnecting": "کنیکٹ کرتے ہوئے وقت ختم ہو گیا",

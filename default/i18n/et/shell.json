@@ -381,7 +381,6 @@
   "network.setDnsTo": "Määra DNS: %1",
   "network.showQrCode": "Näita QR-koodi",
   "network.signInRequired": "Sisselogimine nõutav",
-  "network.signInRequiredHeader": "SISSELOGIMINE NÕUTAV",
   "network.signInToNetwork": "Logi sellesse võrku sisse",
   "network.stayOnBand": "Jää %1-le",
   "network.timedOutConnecting": "Ühendus aegus",

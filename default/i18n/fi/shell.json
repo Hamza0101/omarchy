@@ -381,7 +381,6 @@
   "network.setDnsTo": "Aseta DNS: %1",
   "network.showQrCode": "Näytä QR-koodi",
   "network.signInRequired": "Kirjautuminen vaaditaan",
-  "network.signInRequiredHeader": "KIRJAUTUMINEN VAADITAAN",
   "network.signInToNetwork": "Kirjaudu tähän verkkoon",
   "network.stayOnBand": "Pysy kaistalla %1",
   "network.timedOutConnecting": "Yhdistäminen aikakatkaistiin",

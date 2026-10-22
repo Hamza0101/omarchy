@@ -369,7 +369,6 @@
   "network.setDnsTo": "DNS를 %1로 설정",
   "network.showQrCode": "QR 코드 표시",
   "network.signInRequired": "로그인 필요",
-  "network.signInRequiredHeader": "로그인 필요",
   "network.signInToNetwork": "이 네트워크에 로그인",
   "network.stayOnBand": "%1 유지",
   "network.timedOutConnecting": "연결 시간 초과",

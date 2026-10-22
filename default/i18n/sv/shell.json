@@ -381,7 +381,6 @@
   "network.setDnsTo": "Sätt DNS till %1",
   "network.showQrCode": "Visa QR-kod",
   "network.signInRequired": "Inloggning krävs",
-  "network.signInRequiredHeader": "INLOGGNING KRÄVS",
   "network.signInToNetwork": "Logga in på nätverket",
   "network.stayOnBand": "Stanna på %1",
   "network.timedOutConnecting": "Anslutningen tog för lång tid",

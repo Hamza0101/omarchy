@@ -381,7 +381,6 @@
   "network.setDnsTo": "DNS %1 ලෙස සකසන්න",
   "network.showQrCode": "QR කේතය පෙන්වන්න",
   "network.signInRequired": "ඇතුළු වීම අවශ්‍යයි",
-  "network.signInRequiredHeader": "ඇතුළු වීම අවශ්‍යයි",
   "network.signInToNetwork": "මෙම ජාලයට ඇතුළු වන්න",
   "network.stayOnBand": "%1 හි රැඳී සිටින්න",
   "network.timedOutConnecting": "සම්බන්ධ වීම කල් ඉකුත් විය",

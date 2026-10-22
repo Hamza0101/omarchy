@@ -381,7 +381,6 @@
   "network.setDnsTo": "Setja DNS á %1",
   "network.showQrCode": "Sýna QR-kóða",
   "network.signInRequired": "Þarf innskráningu",
-  "network.signInRequiredHeader": "ÞARF INNSKRÁNINGU",
   "network.signInToNetwork": "Skrá sig inn á þetta net",
   "network.stayOnBand": "Vera áfram á %1",
   "network.timedOutConnecting": "Tíminn rann út við tengingu",

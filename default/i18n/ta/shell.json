@@ -381,7 +381,6 @@
   "network.setDnsTo": "DNS ஐ %1 என அமை",
   "network.showQrCode": "QR குறியீட்டைக் காட்டு",
   "network.signInRequired": "உள்நுழைவு தேவை",
-  "network.signInRequiredHeader": "உள்நுழைவு தேவை",
   "network.signInToNetwork": "இந்த வலையமைப்பில் உள்நுழை",
   "network.stayOnBand": "%1 இலேயே இரு",
   "network.timedOutConnecting": "இணைக்கும்போது நேரம் முடிந்தது",

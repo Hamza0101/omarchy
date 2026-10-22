@@ -1335,7 +1335,8 @@ Panel {
             textFormat: Text.PlainText
             width: parent.width
             text: {
-              if (root.hasCaptivePortal) return Commons.I18n.t("network.signInRequiredHeader")
+              // The sign-in button right below already says what a portal needs.
+              if (root.hasCaptivePortal) return ""
               if (root.restricted) return Commons.I18n.t("network.limitedAccessHeader")
               if (root.info.type === "wifi") {
                 if (root.canDisconnect) return root.connectionPhrase.toUpperCase()

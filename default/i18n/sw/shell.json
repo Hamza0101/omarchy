@@ -381,7 +381,6 @@
   "network.setDnsTo": "Weka DNS kuwa %1",
   "network.showQrCode": "Onyesha msimbo wa QR",
   "network.signInRequired": "Kuingia kunahitajika",
-  "network.signInRequiredHeader": "KUINGIA KUNAHITAJIKA",
   "network.signInToNetwork": "Ingia kwenye mtandao huu",
   "network.stayOnBand": "Kaa kwenye %1",
   "network.timedOutConnecting": "Muda wa kuunganisha umeisha",

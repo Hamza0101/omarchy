@@ -369,7 +369,6 @@
   "network.setDnsTo": "将 DNS 设为 %1",
   "network.showQrCode": "显示 QR 码",
   "network.signInRequired": "需要登录",
-  "network.signInRequiredHeader": "需要登录",
   "network.signInToNetwork": "登录此网络",
   "network.stayOnBand": "保持在 %1",
   "network.timedOutConnecting": "连接超时",
