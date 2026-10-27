@@ -210,7 +210,16 @@ HOME="$fake_home" PATH="$mock_bin:$ROOT/bin:$PATH" OMARCHY_TEST_EDITOR_CALLS="$e
 editor_argv=$(<"$editor_calls")
 [[ $editor_argv == $'<-->\n<+50>' ]] ||
   fail "launch-editor opens a lone +50 as a file" "$editor_argv"
-pass "launch-editor passes a line number before the file as an option, and a lone one as a file"
+
+# After the caller's own "--", "+50" is a file name like any other, even with a
+# file after it.
+HOME="$fake_home" PATH="$mock_bin:$ROOT/bin:$PATH" OMARCHY_TEST_EDITOR_CALLS="$editor_calls" \
+  "$ROOT/bin/omarchy-launch-editor" --inline -- +50 notes.txt
+
+editor_argv=$(<"$editor_calls")
+[[ $editor_argv == $'<-->\n<+50>\n<notes.txt>' ]] ||
+  fail "launch-editor opens +50 as a file after the caller's separator" "$editor_argv"
+pass "launch-editor passes a line number before the file as an option, and a lone one, or one after --, as a file"
 
 cat >"$mock_bin/omarchy-launch-tui" <<'STUB'
 #!/bin/bash
