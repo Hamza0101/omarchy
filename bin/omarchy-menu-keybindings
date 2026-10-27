@@ -236,7 +236,13 @@ end
 -- and aborting the scan halfway through the config.
 local noop
 noop = setmetatable({}, {
-  __index = function()
+  -- A collection answers its first index and `list[#list]` (which is 0) with a
+  -- stand-in and every other number with nil, so `while list[i] do` ends.
+  __index = function(_, key)
+    if type(key) == "number" and key ~= 1 and key ~= 0 then
+      return nil
+    end
+
     return noop
   end,
   __call = function()
@@ -287,8 +293,8 @@ noop = setmetatable({}, {
   end,
 })
 
--- A stub collection is empty to `ipairs`, so `ipairs(hl.get_monitors())` ends
--- instead of spinning forever, while `hl.get_monitors()[1].name` still reads.
+-- A stub collection is empty to `ipairs`, so a loop over it never runs its
+-- body against stand-in values.
 local raw_ipairs = ipairs
 function ipairs(list)
   if rawequal(list, noop) then
@@ -456,8 +462,6 @@ alternative_chord_actions() {
   cat <<'ACTIONS'
 Close window
 Calculator
-Toggle scratchpad
-Move window to scratchpad
 ACTIONS
 }
 
@@ -596,7 +600,7 @@ prioritize_entries() {
     if (match(line, /Resize window/))  prio = 35
     if (match(line, /Expand window/))  prio = 36
     if (match(line, /Shrink window/))  prio = 37
-    if (match(line, /scratchpad/))  prio = 38
+    if (match(line, /scratchpad|Quake console/))  prio = 38
     if (match(line, /notification/))  prio = 39
     if (match(line, /Toggle window transparency/))  prio = 40
     if (match(line, /Toggle workspace gaps/))  prio = 41
@@ -679,7 +683,7 @@ output_binding_records_uncached() {
 
 keybindings_cache_key() {
   {
-    printf 'v18\n'
+    printf 'v19\n'
     leading_keyboard
     omarchy-language 2>/dev/null
     cat "$OMARCHY_PATH/default/i18n/$(omarchy-language 2>/dev/null)/keybindings.json" 2>/dev/null
