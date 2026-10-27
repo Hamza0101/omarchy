@@ -30,12 +30,26 @@ fi
 
 omarchy-cmd-present "$editor" || editor="nvim"
 
+# As $EDITOR, this is also run as `$EDITOR +LINE file`, which is what less's v
+# command does by default. The separator below would make "+LINE" a file to
+# open, so a leading line number followed by a file stays an option, for the
+# editors that read one. On its own, "+LINE" is still a file name.
+line=()
+case "${editor##*/}" in
+nvim | vim | nano | micro)
+  if (( $# > 1 )) && [[ $1 =~ ^\+[0-9]+$ ]]; then
+    line=("$1")
+    shift
+  fi
+  ;;
+esac
+
 case "${editor##*/}" in
 nvim | vim | nano | micro | hx | helix | fresh)
   if [[ $inline == "true" ]]; then
-    exec "$editor" -- "$@"
+    exec "$editor" "${line[@]}" -- "$@"
   else
-    exec omarchy-launch-tui "$editor" -- "$@"
+    exec omarchy-launch-tui "$editor" "${line[@]}" -- "$@"
   fi
   ;;
 *)
