@@ -75,7 +75,9 @@ if [[ ${1:-} == "monitors" && ${2:-} == "all" && ${3:-} == "-j" ]]; then
   [[ -f $OMARCHY_TEST_HYPRCTL_FAIL_FLAG ]] && exit 4
   cat "$OMARCHY_TEST_MONITORS_FILE"
 elif [[ ${1:-} == "reload" ]]; then
-  printf 'reload\n' >>"$OMARCHY_TEST_RELOAD_LOG"
+  # The width the monitor had when the reload was asked for, so a test can
+  # tell a recovery reload made at 0x0 from the one made after the mode came.
+  printf 'reload %s\n' "$(jq -r '.[0].width // ""' "$OMARCHY_TEST_MONITORS_FILE" 2>/dev/null)" >>"$OMARCHY_TEST_RELOAD_LOG"
   [[ -f $OMARCHY_TEST_RECOVERED_MONITORS ]] &&
     cp "$OMARCHY_TEST_RECOVERED_MONITORS" "$OMARCHY_TEST_MONITORS_FILE"
 fi
@@ -242,11 +244,16 @@ printf '%s' '[{"name":"DP-1","width":0,"height":0,"disabled":false}]' >"$monitor
 rm -f "$recovered"
 start_watcher
 await_reloads 1 || fail "a monitor arriving at 0x0 is reloaded"
-before=$(reloads)
 printf '%s' '[{"name":"DP-1","width":2560,"height":1440,"disabled":false}]' >"$monitors_file"
-await_reloads $((before + 1)) || fail "a mode that arrives on its own gets a reload after it" "$(<"$reload_log")"
+# The loop may still make one more reload at 0x0 before it sees the mode, so
+# what counts is the reloads made with the mode there: exactly one, and last.
+for (( waited = 0; waited < 100; waited++ )); do
+  grep -qx 'reload 2560' "$reload_log" && break
+  sleep 0.05
+done
 sleep 0.6
-(( $(reloads) == before + 1 )) || fail "recovery stops after the reload for the size" "$(<"$reload_log")"
+(( $(grep -cx 'reload 2560' "$reload_log") == 1 )) && [[ $(tail -n 1 "$reload_log") == "reload 2560" ]] ||
+  fail "a mode that arrives on its own gets one reload after it, then recovery stops" "$(<"$reload_log")"
 pass "a mode that arrives on its own gets one reload after it, then recovery stops"
 
 stop_watcher
