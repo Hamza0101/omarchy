@@ -12,6 +12,13 @@ else
   inline=false
 fi
 
+# A caller that has already ended its own options, as visudo does with
+# "-- /etc/sudoers.tmp", would otherwise hand the editor a second separator,
+# which every editor opens as a file named "--" (#16768). One is kept: ours.
+if [[ ${1:-} == "--" ]]; then
+  shift
+fi
+
 if [[ -f $default_editor ]]; then
   read -r editor <"$default_editor"
 else

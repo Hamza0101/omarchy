@@ -183,6 +183,17 @@ editor_argv=$(<"$editor_calls")
   fail "launch-editor separates an option-shaped path from editor options" "$editor_argv"
 pass "launch-editor separates an option-shaped path from editor options"
 
+# visudo ends its own options before the file ("-- /etc/sudoers.tmp"). A second
+# separator from the wrapper would reach the editor as a file named "--", and
+# nvim opens it as an empty first buffer (#16768). Exactly one gets through.
+HOME="$fake_home" PATH="$mock_bin:$ROOT/bin:$PATH" OMARCHY_TEST_EDITOR_CALLS="$editor_calls" \
+  "$ROOT/bin/omarchy-launch-editor" --inline -- /etc/sudoers.tmp
+
+editor_argv=$(<"$editor_calls")
+[[ $editor_argv == $'<-->\n</etc/sudoers.tmp>' ]] ||
+  fail "launch-editor keeps one separator when the caller already ended its options" "$editor_argv"
+pass "launch-editor keeps one separator when the caller already ended its options"
+
 cat >"$mock_bin/omarchy-launch-tui" <<'STUB'
 #!/bin/bash
 
